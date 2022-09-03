@@ -3,6 +3,7 @@ package handler_test
 import (
 	"context"
 	"fmt"
+	"github.com/go-redis/redis"
 	"log"
 	"os"
 	"testing"
@@ -30,10 +31,11 @@ type ContainerAddress struct {
 }
 
 var (
-	Maria  ContainerAddress
-	ES     ContainerAddress
-	Engine *gin.Engine
-	Redis  ContainerAddress
+	Maria       ContainerAddress
+	ES          ContainerAddress
+	Engine      *gin.Engine
+	Redis       ContainerAddress
+	redisClient *redis.Client
 )
 
 var _ = BeforeSuite(func() {
@@ -53,12 +55,14 @@ var _ = BeforeSuite(func() {
 	esURL := fmt.Sprintf("http://%s:%s", ES.Host, ES.Port)
 	redisURL := fmt.Sprintf("%s:%s", Redis.Host, Redis.Port)
 	Engine = handler.InitHandler(dbCredential, esURL, redisURL)
+	redisClient = redis.NewClient(&redis.Options{Addr: redisURL})
 })
 
 var _ = AfterSuite(func() {
 	fmt.Println("⛔️ AfterSuite Integration test")
 	Maria.Terminate()
 	ES.Terminate()
+	Redis.Terminate()
 })
 
 func setupMariaDBContainer() ContainerAddress {

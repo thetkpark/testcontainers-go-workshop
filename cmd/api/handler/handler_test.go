@@ -151,6 +151,7 @@ var _ = Describe("Handler", Label("integration"), func() {
 		w := httptest.NewRecorder()
 		Engine.ServeHTTP(w, req)
 
+		Expect(redisClient.Get("snowman").Err()).ToNot(Succeed())
 		searchReq, _ := http.NewRequest(http.MethodGet, API_URL+"/api/v1/book/search?keyword=snowman", nil)
 		w2 := httptest.NewRecorder()
 		Engine.ServeHTTP(w2, searchReq)
@@ -172,5 +173,6 @@ var _ = Describe("Handler", Label("integration"), func() {
 		}
 
 		Expect(b[0]).To(Equal(expected[0]))
+		Expect(redisClient.Get("snowman").Err()).To(Succeed())
 	})
 })
